@@ -373,10 +373,26 @@ function load(){
     cfg=merge(d&&Object.keys(d).length?d:null);render();
   });
 }
+function showErr(on){
+  var b=document.getElementById("srvErr");
+  if(!b){
+    b=document.createElement("div");b.id="srvErr";
+    b.style.cssText="margin:0 0 16px;padding:12px 16px;border-radius:12px;background:var(--warn-bg);border:2px solid var(--warn-line);color:var(--warn-text);font-weight:600";
+    b.textContent="⚠️ Não foi possível conectar ao servidor. Exibindo a escala padrão, com a edição desativada. Verifique se a função /api/escalas foi publicada no Netlify.";
+    document.querySelector("main").insertBefore(b,document.getElementById("tabs"));
+  }
+  b.hidden=!on;
+}
 (function(){
   perm=true;
-  load().then(function(){setEdit()}).catch(function(){initLocal()});
-  setInterval(function(){if(!unlocked&&!localMode)load().catch(function(){})},60000);
+  load().then(function(){showErr(false);setEdit()}).catch(function(){
+    if(location.protocol==="file:"){initLocal()}
+    else{perm=false;unlocked=false;showErr(true);setEdit()}
+  });
+  setInterval(function(){
+    if(unlocked||localMode)return;
+    load().then(function(){showErr(false);if(!perm){perm=true;setEdit()}}).catch(function(){});
+  },60000);
 })();
 </script>
 </body>
