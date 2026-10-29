@@ -39,5 +39,3 @@ export default async (req) => {
   await store.setJSON("config", cfg);
   return json({ ok: true });
 };
-
-export const config = { path: "/api/escalas" };
